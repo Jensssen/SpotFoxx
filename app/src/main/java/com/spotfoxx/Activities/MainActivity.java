@@ -1,4 +1,4 @@
-package com.spotfoxx;
+package com.spotfoxx.Activities;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -24,8 +24,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SearchView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -67,6 +67,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.spotfoxx.Adapter.CustomMarkerInfoAdapter;
 import com.spotfoxx.Adapter.PlaylistAdapter;
+import com.spotfoxx.BuildConfig;
 import com.spotfoxx.Classes.Constants;
 import com.spotfoxx.Classes.FirebaseControl;
 import com.spotfoxx.Classes.MyLocation;
@@ -75,6 +76,7 @@ import com.spotfoxx.Classes.SpotifyControl;
 import com.spotfoxx.Classes.SpotifyWebApi;
 import com.spotfoxx.Classes.User;
 import com.spotfoxx.Interfaces.SpotifyClient;
+import com.spotfoxx.R;
 import com.spotfoxx.SpotifyClasses.GetPlaylistObj;
 import com.spotfoxx.SpotifyClasses.Item;
 import com.spotfoxx.SpotifyClasses.Offset;
@@ -84,6 +86,7 @@ import com.spotfoxx.SpotifyClasses.PlaylistItem;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.ImageUri;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,10 +103,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Buttons
     private Button btn_update_map;
+
+    // Dialog click on marker
+    private TextView tv_playlist_title;
     private Button btn_like;
     private Button btn_dislike;
 
-    // Dialog
+    // Dialog place marker
     private Dialog dialog;
     private Button btn_dialog_place_marker;
     private Spinner drop_down_playlists;
@@ -116,7 +122,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private List<Playlist_item> playlist_items = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private PlaylistAdapter mAdapter;
-    private LinearLayoutManager mLayoutManager;
     private long mLastClickTime = 0;
 
     // Locaitons and markers
@@ -140,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Spotify web api
     private static SpotifyClient client;
-    private String currently_sellected_playlist = "";
 
     // ARRAYS: These arrays hold all marker related information and are essential to core functionalities
     private ArrayList<MyLocation> myLocations = new ArrayList<>(); // holds all location objs, inside of the search radius
@@ -148,9 +152,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<Marker> markers = new ArrayList<>(); // holds all placed markers
 
 
-    // Layouts
-    private LinearLayout ll_map;
-    private LinearLayout ll_locations;
 
     private static final String TAG = "mainActivity";
     private SpotifyAppRemote mSpotifyAppRemote;
@@ -233,14 +234,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         MARKER_LIKE_INDICATION.put(15, 0xFF0000FF);
         mMapView = (MapView) findViewById(R.id.map);
         btn_update_map = (Button) findViewById(R.id.btn_update_map);
-        btn_like = (Button) findViewById(R.id.btn_like);
-        btn_dislike = (Button) findViewById(R.id.btn_dislike);
 
-        ll_map = (LinearLayout) findViewById(R.id.ll_map);
-        ll_locations = (LinearLayout) findViewById(R.id.ll_locations);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.rv_playlist);
-        mLayoutManager = new LinearLayoutManager(getApplicationContext());
         dialog = new Dialog(MainActivity.this);
 
         if (mMapView != null) {
@@ -308,19 +303,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        btn_like.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseControl.like_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
-            }
-        });
 
-        btn_dislike.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseControl.dislike_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
-            }
-        });
     }
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -329,18 +312,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         clicked_marker_id = marker_ids.indexOf(marker_key);
         MyLocation myLocation = myLocations.get(clicked_marker_id);
 
+        // Get Playlist uri and perform web api call
+        String playlist_uri = myLocation.getSpotify_uri();
 
-        // Only allow web api call for first unique marker press
-        if (!currently_sellected_playlist.equals(marker_key)){
-            currently_sellected_playlist = marker_key;
+        // Check if user is close to a present marker (Min marker distance has to be fulfilled).
+        Location tmp_location = new Location("");
+        tmp_location.setLatitude(myLocation.getL().get(0));
+        tmp_location.setLongitude(myLocation.getL().get(1));
+        float distance = current_device_location.distanceTo(tmp_location);
 
-            // Get Playlist uri and perform web api call
-            String playlist_uri = myLocation.getSpotify_uri();
+        if (distance < MARKER_RADIUS) {
             requestPlaylistInfo(getApplicationContext(), playlist_uri);
+            showMarkerDialog(marker);
+        } else {
+            Toast.makeText(getApplicationContext(), "You need to be close to the marker.", Toast.LENGTH_SHORT).show();
         }
 
-        ll_locations.setVisibility(View.VISIBLE);
-        return false;
+        return true;
     }
 
     @Override
@@ -361,7 +349,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng arg0) {
-                ll_locations.setVisibility(View.GONE);
+                dialog.dismiss();
             }
         });
 
@@ -401,7 +389,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Executed only once, inits all marker in a predefined distance to the user
         if (mGoogleMap != null) {
             mGoogleMap.clear();
-            mGoogleMap.setInfoWindowAdapter(new CustomMarkerInfoAdapter(getApplicationContext()));
         }
         // Clear the myLocations array
         myLocations.clear();
@@ -565,7 +552,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         drop_down_playlists = (Spinner) dialog.findViewById(R.id.drop_down_playlists);
         img_playlists = (ImageView) dialog.findViewById(R.id.playlist_img);
 
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, playlist_names);
 
         //set the spinners adapter to the previously created one.
@@ -623,6 +609,40 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         dialog.show();
     }
 
+    private void showMarkerDialog(Marker marker) {
+        dialog.setContentView(R.layout.marker_click_layout);
+
+        btn_like = (Button) dialog.findViewById(R.id.btn_like);
+        btn_dislike = (Button) dialog.findViewById(R.id.btn_dislike);
+        mRecyclerView = (RecyclerView) dialog.findViewById(R.id.rv_playlist);
+        tv_playlist_title = (TextView) dialog.findViewById(R.id.playlist_title);
+
+        String[] likes_dislikes = marker.getSnippet().split("/");
+        String like = likes_dislikes[0];
+        String dislike = likes_dislikes[1];
+
+        btn_like.setText("Like: " + like);
+        btn_dislike.setText("Dislike: " + dislike);
+
+        btn_like.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseControl.like_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
+                btn_like.setText("Like: " + (Integer.parseInt(like) + 1));
+                btn_dislike.setText("Dislike: " + (Integer.parseInt(like) - 1));
+            }
+        });
+
+        btn_dislike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseControl.dislike_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
+            }
+        });
+
+        dialog.show();
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -636,6 +656,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void requestPlaylistInfo(Context context, String spotify_playlist_uri) {
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
 
         // Get all tracks from Backster:user_name playlist and visualize them
         // If Playlist is empty, show corresponding info text to user.
@@ -647,6 +668,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onResponse(Call<PlaylistInfo> call, Response<PlaylistInfo> response) {
                 if (response.code() == 200) {
                     PlaylistInfo playlistInfo = response.body();
+                    tv_playlist_title.setText(playlistInfo.getName());
                     List<String> radio_playlist_array = new ArrayList<>();
                     // Create a list of Track objects that could either be a track or an episode.
                     playlist_items.clear();
@@ -663,7 +685,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mAdapter = new PlaylistAdapter(playlist_items);
                         mRecyclerView.setLayoutManager(mLayoutManager);
                         mRecyclerView.setAdapter(mAdapter);
-                        mRecyclerView.setVisibility(View.VISIBLE);
 
                         mAdapter.setOnItemClickListener(new PlaylistAdapter.OnItemClickListener() {
                             @Override

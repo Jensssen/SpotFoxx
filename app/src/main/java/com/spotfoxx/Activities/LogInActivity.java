@@ -1,4 +1,4 @@
-package com.spotfoxx;
+package com.spotfoxx.Activities;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +29,7 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.spotfoxx.Classes.SpotifyWebApi;
 import com.spotfoxx.Classes.User;
+import com.spotfoxx.R;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
