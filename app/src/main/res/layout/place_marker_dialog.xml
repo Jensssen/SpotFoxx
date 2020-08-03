@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="400dp"
+    android:background="@color/colorPrimary"
+    android:layout_gravity="center">
+
+
+
+    <ImageView
+        android:id="@+id/playlist_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="40dp"
+        android:background="@drawable/ic_insert_photo_placeholder"/>
+
+    <Spinner
+        android:id="@+id/drop_down_playlists"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:spinnerMode="dropdown"/>
+
+    <Button
+        android:id="@+id/btn_dialog_place_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Place Marker"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/btn_style"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/white" />
+
+
+</LinearLayout>
