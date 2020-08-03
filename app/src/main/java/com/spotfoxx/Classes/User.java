@@ -1,4 +1,4 @@
-package com.spotfoxx;
+package com.spotfoxx.Classes;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -6,6 +6,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
+
+
+import java.util.ArrayList;
+
 
 public class User {
     // store infos about user and make accessible in the app (not needed to be uploaded into db)
@@ -52,7 +56,6 @@ public class User {
         User.spotifyDeviceId = userSpotifyDeviceId;
     }
 
-
     public static Boolean getUser_listen_live_state() {
         return user_listen_live_state;
     }
@@ -90,7 +93,7 @@ public class User {
 
         if (connectivityManager != null) {
 
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.getActiveNetwork());
                 if (capabilities != null) {
                     if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
