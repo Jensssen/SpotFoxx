@@ -196,14 +196,9 @@ public class LogInActivity extends AppCompatActivity {
         String backster_playlist_id = defaultSharedPreferences.getString(getString(R.string.shared_pref_key_user_playlist_id), "null");
 
         new_values.put(Constants.uuid, User.getUuid());
-        new_values.put(Constants.broadcast_state, 0);
         new_values.put(Constants.user_name, user_name);
         new_values.put(Constants.party_playlist_uri, "-");
-        new_values.put(Constants.party_track_position, 1);
         new_values.put(Constants.lobby_playlist_uri, backster_playlist_id);
-        new_values.put(Constants.party_seek_to_ms, Constants.PARTY_SEEK_TO_MS_FALLBACK);
-        new_values.put(Constants.party_start_sync_atom_time, 0);
-        new_values.put(Constants.party_sync_status, -1);
         DatabaseReference userRef = db_reference.child(Constants.user).child(User.getUuid());
         userRef.child(Constants.user).setValue(new_values);
     }
