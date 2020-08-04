@@ -5,7 +5,8 @@
     android:layout_height="550dp"
     android:scrollbars="vertical"
     android:id="@+id/ll_marker_click"
-    android:layout_gravity="center">
+    android:layout_gravity="center"
+    android:background="@color/colorPrimaryDark">
 
 
     <TextView
@@ -15,9 +16,21 @@
         android:layout_gravity="center_horizontal"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="#000"
-        android:textSize="14sp"
+        android:textColor="#FFF"
+        android:textSize="20sp"
         android:textStyle="bold"
+        android:text="Playlist Name"/>
+
+    <TextView
+        android:id="@+id/tv_like_dislike"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#FFF"
+        android:textSize="15sp"
+
         android:text="Playlist Name"/>
 
     <RelativeLayout
@@ -28,7 +41,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_playlist"
             android:layout_width="match_parent"
-            android:layout_height="470dp"
+            android:layout_height="440dp"
             android:scrollbars="vertical"
             android:layout_margin="5dp"/>
 

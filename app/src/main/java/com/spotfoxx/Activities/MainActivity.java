@@ -88,6 +88,8 @@ import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.ImageUri;
 
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Dialog click on marker
     private TextView tv_playlist_title;
+    private TextView tv_like_dislike;
     private Button btn_like;
     private Button btn_dislike;
 
@@ -441,11 +444,17 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 myLocation.setLike_rate(getLikeRate(myLocation));
 
+                // update like, dislike textview in dialog
+                int like = 0;
+                int dislike = 0;
+                if (myLocation.getDislike() != null){
+                    dislike = myLocation.getDislike().size();
+                }
+                if (myLocation.getLike() != null){
+                    like = myLocation.getLike().size();
+                }
+                updateLikeDislikeDialog(like, dislike);
 
-                // Update marker text with new like rate
-                markers.get(list_idx).setTitle(myLocation.getName());
-                markers.get(list_idx).setSnippet(getLikeDislikeRate(myLocation));
-                markers.get(list_idx).showInfoWindow(); // Make update visible
                 myLocations.set(list_idx, myLocation);
             }
 
@@ -601,8 +610,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     Toast.makeText(getApplicationContext(), "No Playlist Selected", Toast.LENGTH_SHORT).show();
                 }
-
-
                 dialog.dismiss();
             }
         });
@@ -621,15 +628,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         String like = likes_dislikes[0];
         String dislike = likes_dislikes[1];
 
-        btn_like.setText("Like: " + like);
-        btn_dislike.setText("Dislike: " + dislike);
+        updateLikeDislikeDialog(Integer.parseInt(like), Integer.parseInt(dislike));
 
         btn_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FirebaseControl.like_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
-                btn_like.setText("Like: " + (Integer.parseInt(like) + 1));
-                btn_dislike.setText("Dislike: " + (Integer.parseInt(like) - 1));
+
             }
         });
 
@@ -668,7 +673,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onResponse(Call<PlaylistInfo> call, Response<PlaylistInfo> response) {
                 if (response.code() == 200) {
                     PlaylistInfo playlistInfo = response.body();
-                    tv_playlist_title.setText(playlistInfo.getName());
+                    tv_playlist_title.setText(playlistInfo.getOwner().getDisplayName() + " - " + playlistInfo.getName());
                     List<String> radio_playlist_array = new ArrayList<>();
                     // Create a list of Track objects that could either be a track or an episode.
                     playlist_items.clear();
@@ -745,6 +750,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     // ############################# UTILS #################################
+
+    private void updateLikeDislikeDialog(int like, int dislike){
+
+        tv_like_dislike = (TextView) dialog.findViewById(R.id.tv_like_dislike);
+
+        tv_like_dislike.setText(String.format("Likes: %d | Dislikes: %d", like, dislike));
+    }
 
     private String getLikeDislikeRate(MyLocation myLocation) {
         int like = 0;
