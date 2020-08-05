@@ -181,7 +181,7 @@ public class LogInActivity extends AppCompatActivity {
                         .enableAnonymousUsersAutoUpgrade()
                         .setAvailableProviders(providers)
                         .setTheme(R.style.AppTheme)
-                        .setLogo(R.mipmap.ic_launcher)
+                        .setLogo(R.mipmap.spotfoxxicon)
                         .build(), Constants.FIREBASE_REQUEST_CODE
         );
     }
