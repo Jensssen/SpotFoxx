@@ -13,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -162,11 +163,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private Toolbar toolbar;
 
-    // Firebase Setup
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference myRef = database.getReference();
-    private DatabaseReference userRef;
-
     private FloatingActionButton fab_btn;
 
     @Override
@@ -176,9 +172,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         toolbar = findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
-
-        // retrieve UUID
-        userRef = myRef.child(Constants.user).child(User.getUuid()).child(Constants.user_path);
 
         // Set context
         User.setContext(getApplicationContext());
@@ -252,9 +245,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         } else if (id==R.id.sign_out) {
             FirebaseAuth.getInstance().signOut();
             finishAndRemoveTask();
-        } else if (id==R.id.edit_your_markers) {
-            Intent intent = new Intent(MainActivity.this, PlacedMarkerSettingsActivity.class);
-            MainActivity.this.startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -367,8 +357,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_CODE_LOCATION_PERMISSION
-            );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, Constants.REQUEST_CODE_LOCATION_PERMISSION
+                );
+            }
         } else {
             enableUserLocation();
             // After map has been loaded, load all myLocations from db
@@ -548,13 +540,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onResponse(Call<GetPlaylistObj> call, Response<GetPlaylistObj> response) {
                 GetPlaylistObj playlistObj = response.body();
                 ArrayList<String> playlist_names = new ArrayList<>();
-                List<Item> playlists = playlistObj.getItems();
-                if (playlistObj != null) {
-                    for (Item item : playlists) {
-                        playlist_names.add(item.getName());
+                if(playlistObj != null){
+                    List<Item> playlists = playlistObj.getItems();
+                    if (playlistObj != null) {
+                        for (Item item : playlists) {
+                            playlist_names.add(item.getName());
+                        }
                     }
+                    showPlaceMarkerDialog(playlists, playlist_names);
                 }
-                showPlaceMarkerDialog(playlists, playlist_names);
             }
 
             @Override

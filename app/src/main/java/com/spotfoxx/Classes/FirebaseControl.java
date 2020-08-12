@@ -5,30 +5,14 @@ import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
 public class FirebaseControl {
-
-    private static List<String> playlistMarkerkeys;
-
-    // override
-    public static void update_user_value(String uuid, String value_name, String value) {
-        Map<String, Object> new_values = new HashMap<>();
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userRef = database.getReference().child(Constants.user).child(uuid).child(Constants.user_path);
-        new_values.put(value_name, value);
-        userRef.updateChildren(new_values);
-    }
 
 
     public static void like_marker(Context context, String marker_id, String user_name) {

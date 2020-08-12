@@ -1,8 +1,5 @@
 package com.spotfoxx.Activities;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -11,28 +8,26 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.spotfoxx.Classes.AlertDialogCreator;
-import com.spotfoxx.Classes.Constants;
-import com.spotfoxx.Classes.SpotifyControl;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.spotfoxx.Classes.AlertDialogCreator;
+import com.spotfoxx.Classes.Constants;
+import com.spotfoxx.Classes.SpotifyControl;
 import com.spotfoxx.Classes.SpotifyWebApi;
 import com.spotfoxx.Classes.User;
 import com.spotfoxx.R;
 import com.spotify.sdk.android.auth.AuthorizationClient;
 import com.spotify.sdk.android.auth.AuthorizationRequest;
 import com.spotify.sdk.android.auth.AuthorizationResponse;
+
+import java.util.Arrays;
+import java.util.List;
 
 
 public class LogInActivity extends AppCompatActivity {
@@ -60,8 +55,7 @@ public class LogInActivity extends AppCompatActivity {
                     User.setUuid(db_user.getUid());
                 } else {
                     // Perform a fresh firebase login.
-                    providers = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(),
-                            new AuthUI.IdpConfig.GoogleBuilder().build());
+                    providers = Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build());
                     showSignInOptions();
                 }
 

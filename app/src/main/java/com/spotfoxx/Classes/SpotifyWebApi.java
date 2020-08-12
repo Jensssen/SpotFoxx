@@ -65,7 +65,6 @@ public class SpotifyWebApi {
                     UserObj userObj = response.body();
                     String name = userObj.getDisplayName();
                     User.setSpotify_user_name(name);
-                    FirebaseControl.update_user_value(User.getUuid(), Constants.user_name, name);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
                     preferences.edit().putString(context.getString(R.string.shared_pref_key_user_name), name).apply();
                 } else {
