@@ -3,63 +3,91 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/main_activity"
-    tools:context=".Activities.MainActivity"
-    android:weightSum="10">
+    android:id="@+id/ll_map"
+    tools:context=".Activities.MainActivity">
 
-    <include
-        layout="@layout/toolbar"/>
-
-
-    <LinearLayout
-        android:id="@+id/ll_map"
+    <include layout="@layout/toolbar" />
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:orientation="vertical"
-        android:layout_weight="5">
-        <RelativeLayout
+        android:layout_height="match_parent">
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/map"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height= "match_parent"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="32dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit_location"
+            app:elevation="2dp"
+            android:visibility="visible"/>
+
+        <Button
+            android:id="@+id/btn_place_marker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_style"
+            android:text="Place new Marker"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="106dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit_location"
+            app:elevation="2dp"
+            android:visibility="invisible"/>
 
 
-            <com.google.android.gms.maps.MapView
-                android:id="@+id/map"
-                android:layout_width="match_parent"
-                android:layout_height= "match_parent"/>
+        <Button
+            android:id="@+id/btn_edit_markers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_style"
+            android:text="Edit your Markers"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="180dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit_location"
+            app:elevation="2dp"
+            android:visibility="invisible"/>
 
-            <Button
-                android:id="@+id/btn_update_map"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="60dp"
-                android:background="@drawable/btn_style"
-                android:textAllCaps="false"
-                android:text="Update Map"
-                android:textColor="@color/white" />
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="32dp"
-                    android:layout_marginBottom="64dp"
-                    android:layout_gravity="bottom|end"
-                    android:clickable="true"
-                    android:focusable="true"
-                    app:srcCompat="@drawable/ic_edit_location"
-                    app:elevation="2dp"/>
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-        </RelativeLayout>
-    </LinearLayout>
+        <Button
+            android:id="@+id/btn_update_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_style"
+            android:text="Update Map"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="254dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit_location"
+            app:elevation="2dp"
+            android:visibility="invisible"/>
+    </RelativeLayout>
 </LinearLayout>
 
 

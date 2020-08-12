@@ -6,7 +6,7 @@
     android:scrollbars="vertical"
     android:id="@+id/ll_marker_click"
     android:layout_gravity="center"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimary">
 
 
     <TextView

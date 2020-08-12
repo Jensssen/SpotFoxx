@@ -5,6 +5,7 @@ public final class Constants {
     public static final String location_prefix = "location";
     public static final String user = "u";
     public static final String party = "party";
+    public static final String playlist_marker = "plm";
     public static final String marker = "marker";
     public static final String party_member = "party_member";
     public static final String author = "a";

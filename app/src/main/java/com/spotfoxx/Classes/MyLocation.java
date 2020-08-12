@@ -5,18 +5,17 @@ import java.util.Map;
 
 public class MyLocation {
     private String name;
-    private int geo_restricted;
     private String spotify_uri;
     private String user_name;
     private List<Double> l;
     private Map<String, Object> like;
     private Map<String, Object> dislike;
     private int like_rate;
+    private String key;
 
 
-    public MyLocation(String name, int geo_restricted, String spotify_uri, String user_name, List<Double> l, Map<String, Object> like, Map<String, Object> dislike) {
+    public MyLocation(String name, String spotify_uri, String user_name, List<Double> l, Map<String, Object> like, Map<String, Object> dislike) {
         this.name = name;
-        this.geo_restricted = geo_restricted;
         this.spotify_uri = spotify_uri;
         this.l = l;
         this.user_name = user_name;
@@ -25,7 +24,6 @@ public class MyLocation {
     }
 
     public MyLocation() {
-
     }
 
     public List<Double> getL() {
@@ -46,14 +44,6 @@ public class MyLocation {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getGeo_restricted() {
-        return geo_restricted;
-    }
-
-    public void setGeo_restricted(int geo_restricted) {
-        this.geo_restricted = geo_restricted;
     }
 
     public String getSpotify_uri() {
@@ -86,5 +76,12 @@ public class MyLocation {
 
     public void setLike_rate(int like_rate) {
         this.like_rate = like_rate;
+    }
+
+    public String getKey() {
+        return key;
+    }
+    public void setKey(String key) {
+        this.key = key;
     }
 }

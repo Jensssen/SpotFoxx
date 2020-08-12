@@ -10,4 +10,8 @@
         android:title="@string/sign_out"
         android:id="@+id/sign_out"/>
 
+    <item
+        android:title="@string/edit_your_markers"
+        android:id="@+id/edit_your_markers"/>
+
 </menu>
