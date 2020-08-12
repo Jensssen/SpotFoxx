@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "416604327332",
+    "firebase_url": "https://spotfoxx.firebaseio.com",
+    "project_id": "spotfoxx",
+    "storage_bucket": "spotfoxx.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416604327332:android:371b2ff3eddf62bd674531",
+        "android_client_info": {
+          "package_name": "com.spotfoxx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "416604327332-fsebmni9g5s1l4618mut32e7nc4pq3so.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.spotfoxx",
+            "certificate_hash": "e1cc5c087dd0a657525a8509c51574bacbe6a7b9"
+          }
+        },
+        {
+          "client_id": "416604327332-a9tlum9l45oobosplg2dpbn84nil60b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC1JjtAZRU_IIGU09lfDQB3OJxnXSYVnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "416604327332-a9tlum9l45oobosplg2dpbn84nil60b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
