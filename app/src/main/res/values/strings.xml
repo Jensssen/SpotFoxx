@@ -1,97 +1,98 @@
 <resources>
-<string name="app_name">SpotFoxx</string>
-<!-- View descriptors -->
-<string name="Content_description_user_name">User name</string>
-<string name="Content_description_Author_Title">Name of Author and Title</string>
-<string name="Content_description_favourite">Set Radio to Favourite</string>
-<string name="Content_description_play_button">Start listening to radio</string>
-<string name="Content_description_stop_button">Stop listening to radio</string>
+    <string name="app_name">SpotFoxx</string>
+    <!-- View descriptors -->
+    <string name="Content_description_user_name">User name</string>
+    <string name="Content_description_Author_Title">Name of Author and Title</string>
+    <string name="Content_description_favourite">Set Radio to Favourite</string>
+    <string name="Content_description_play_button">Start listening to radio</string>
+    <string name="Content_description_stop_button">Stop listening to radio</string>
 
-<!-- Alert Dialog strings -->
-<string name="stop_broadcast_dialog_msg">Can\'t listen and broadcast simultaneously - stop broadcast and try again.</string>
-<string name="stop_listen_dialog_msg">Can\'t listen and broadcast simultaneously - stop listening first.</string>
-<string name="no_internet_toast">No Network! Internet connection required.</string>
-<string name="no_internet_dialog_title">No Network</string>
-<string name="no_internet_dialog_message">Enable Network connection and retry</string>
-<string name="no_internet_dialog_cta">Retry</string>
-<string name="no_spotify_installed_title">Install Spotify?</string>
-<string name="no_spotify_installed_message">Spotify required for Backster to work</string>
-<string name="no_spotify_installed_cta">Install</string>
-<string name="empty_user_playlist">Add your favourite songs to the playlist called \"Backster:%1$s\" inside Spotify and they will appear here for others to see!</string>
-<string name="empty_radio_playlist">This user has not added songs yet.</string>
-<string name="no_spotify_premium">Spotify Premium required</string>
-<string name="volume_dialog_title">"Set party volume:"</string>
-<string name="volume_changes_dialog_title">"Applying volume changes:"</string>
-<string name="sync_dialog_title">"DJ Syncing Partymembers:"</string>
-<string name="cancel">@android:string/cancel</string>
-<string name="apply">@android:string/ok</string>
-<string name="ok">"OK"</string>
-<string name="party_closed">DJ has closed the party</string>
-<string name="Add_songs_to_spotify_playlist">Add Songs</string>
-
-
-<!-- Toasts -->
-<string name="no_spotify_connection">Spotify connection failed</string>
-<string name="no_spotify_null">Spotify null pointer</string>
-<string name="start_spotify">Please start Spotify app first</string>
-<string name="dialog_stop_app">Back</string>
-<string name="enable_spotify_broadcast_title">Action required</string>
-<string name="enable_spotify_broadcast_message_old">Please enable <i> \"Device Broadcast Status\" </i> inside Spotify settings.</string>
-<string name="enable_spotify_broadcast_menu_item">Device Broadcast Status</string>
-<string name="enable_spotify_broadcast_menu_item_de">Übertragungsstatus</string>
-<string name="enable_spotify_broadcast_cta">Spotify</string>
-<string name="back_btn">Back</string>
-<string name="retry_later">Please retry in a few seconds</string>
-<string name="Spotify_unavailable">Spotify currently unavailable</string>
-<string name="disable_crossfade">Please disable crossfade inside your Spotify settings</string>
-<string name="sth_went_wrong">Something went wrong</string>
-<string name="failed_authenticate">Spotify authentication failed</string>
+    <!-- Alert Dialog strings -->
+    <string name="stop_broadcast_dialog_msg">Can\'t listen and broadcast simultaneously - stop broadcast and try again.</string>
+    <string name="stop_listen_dialog_msg">Can\'t listen and broadcast simultaneously - stop listening first.</string>
+    <string name="no_internet_toast">No Network! Internet connection required.</string>
+    <string name="no_internet_dialog_title">No Network</string>
+    <string name="no_internet_dialog_message">Enable Network connection and retry</string>
+    <string name="no_internet_dialog_cta">Retry</string>
+    <string name="no_spotify_installed_title">Install Spotify?</string>
+    <string name="no_spotify_installed_message">Spotify required for Backster to work</string>
+    <string name="no_spotify_installed_cta">Install</string>
+    <string name="empty_user_playlist">Add your favourite songs to the playlist called \"Backster:%1$s\" inside Spotify and they will appear here for others to see!</string>
+    <string name="empty_radio_playlist">This user has not added songs yet.</string>
+    <string name="no_spotify_premium">Spotify Premium required</string>
+    <string name="volume_dialog_title">"Set party volume:"</string>
+    <string name="volume_changes_dialog_title">"Applying volume changes:"</string>
+    <string name="sync_dialog_title">"DJ Syncing Partymembers:"</string>
+    <string name="cancel">@android:string/cancel</string>
+    <string name="apply">@android:string/ok</string>
+    <string name="ok">"OK"</string>
+    <string name="party_closed">DJ has closed the party</string>
+    <string name="Add_songs_to_spotify_playlist">Add Songs</string>
 
 
-<!-- View strings -->
-<string name="tv_join_party">Listen live:</string>
-<string name="tv_radio_state_online">Radio is ONLINE</string>
-<string name="tv_radio_state_offline">Radio is OFFLINE</string>
-<string name="fragment_friends_title">Friends</string>
-<string name="fragment_public_title">Public</string>
-<string name="fragment_location_title">Locations</string>
-<string name="radio_activity_title">Backster: %1$s</string>
-<string name="my_party">My Party: %1$s</string>
-<string name="party_of">Party of: %1$s</string>
-<string name="me">me</string>
-
-<!-- Action bar menu items -->
-<string name="settings_menu_item">Settings</string>
-<string name="search_menu_item">Search</string>
-<string name="link_sharing_menu_item">Share this app</string>
-<string name="title_activity_settings">Settings</string>
-<string name="delete_my_playlist">Delete my Playlist</string>
-<string name="sign_out">Sign Out and Exit</string>
-<string name="debug_activity">Debugging</string>
-
-<!-- Recording Preferences -->
-<string name="theme_settings">Backster Theme Settings</string>
-<string name="enable_mark_mode">Enable Dark Mode</string>
-<string name="dark_mode_description">Backster app will start in Dark Mode if set to true</string>
-<string name="shared_pref_key_enable_dark_mode" translatable="false">enable_dark_mode</string>
-
-<!-- Party / Sync flow -->
-<string name="no_song_to_sync">Please play a song in Spotify first</string>
-<string name="backster_playlist_description">My Backster Playlist</string>
-
-<!-- Shared Preferences -->
-<string name="shared_pref_key_user_name">user_name</string>
-<string name="shared_pref_key_user_playlist_id">backster_playlist_id</string>
-
-<!-- Others -->
-<string name="link_sharing_message">Let me recommend this app to you: \n \n</string>
-
-<!-- Google maps api -->
-<string name="google_maps_api_key">AIzaSyBuPYAtbTCjOx4hrcm161UxKqtBU5YOfLk</string>
-<string name="gps_title_permission_request">GPS Usage</string>
-<string name="gps_message_permission_request">GPS permission is needed in order to determine the users myLocation, relative to static georestricted Backster Playlists.</string>
+    <!-- Toasts -->
+    <string name="no_spotify_connection">Spotify connection failed</string>
+    <string name="no_spotify_null">Spotify null pointer</string>
+    <string name="start_spotify">Please start Spotify app first</string>
+    <string name="dialog_stop_app">Back</string>
+    <string name="enable_spotify_broadcast_title">Action required</string>
+    <string name="enable_spotify_broadcast_message_old">Please enable <i> \"Device Broadcast Status\" </i> inside Spotify settings.</string>
+    <string name="enable_spotify_broadcast_menu_item">Device Broadcast Status</string>
+    <string name="enable_spotify_broadcast_menu_item_de">Übertragungsstatus</string>
+    <string name="enable_spotify_broadcast_cta">Spotify</string>
+    <string name="back_btn">Back</string>
+    <string name="retry_later">Please retry in a few seconds</string>
+    <string name="Spotify_unavailable">Spotify currently unavailable</string>
+    <string name="disable_crossfade">Please disable crossfade inside your Spotify settings</string>
+    <string name="sth_went_wrong">Something went wrong</string>
+    <string name="failed_authenticate">Spotify authentication failed</string>
 
 
-<!-- TODO: Remove or change this placeholder text -->
-<string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- View strings -->
+    <string name="tv_join_party">Listen live:</string>
+    <string name="tv_radio_state_online">Radio is ONLINE</string>
+    <string name="tv_radio_state_offline">Radio is OFFLINE</string>
+    <string name="fragment_friends_title">Friends</string>
+    <string name="fragment_public_title">Public</string>
+    <string name="fragment_location_title">Locations</string>
+    <string name="radio_activity_title">Backster: %1$s</string>
+    <string name="my_party">My Party: %1$s</string>
+    <string name="party_of">Party of: %1$s</string>
+    <string name="me">me</string>
+
+    <!-- Action bar menu items -->
+    <string name="settings_menu_item">Settings</string>
+    <string name="search_menu_item">Search</string>
+    <string name="link_sharing_menu_item">Share this app</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="delete_my_playlist">Delete my Playlist</string>
+    <string name="sign_out">Sign Out and Exit</string>
+    <string name="edit_your_markers">Edit Your Markers</string>
+    <string name="debug_activity">Debugging</string>
+
+    <!-- Recording Preferences -->
+    <string name="theme_settings">Backster Theme Settings</string>
+    <string name="enable_mark_mode">Enable Dark Mode</string>
+    <string name="dark_mode_description">Backster app will start in Dark Mode if set to true</string>
+    <string name="shared_pref_key_enable_dark_mode" translatable="false">enable_dark_mode</string>
+
+    <!-- Party / Sync flow -->
+    <string name="no_song_to_sync">Please play a song in Spotify first</string>
+    <string name="backster_playlist_description">My Backster Playlist</string>
+
+    <!-- Shared Preferences -->
+    <string name="shared_pref_key_user_name">user_name</string>
+    <string name="shared_pref_key_user_playlist_id">backster_playlist_id</string>
+
+    <!-- Others -->
+    <string name="link_sharing_message">Let me recommend this app to you: \n \n</string>
+
+    <!-- Google maps api -->
+    <string name="google_maps_api_key">AIzaSyBuPYAtbTCjOx4hrcm161UxKqtBU5YOfLk</string>
+    <string name="gps_title_permission_request">GPS Usage</string>
+    <string name="gps_message_permission_request">GPS permission is needed in order to determine the users myLocation, relative to static georestricted Backster Playlists.</string>
+
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
