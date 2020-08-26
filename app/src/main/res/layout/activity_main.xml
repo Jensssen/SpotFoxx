@@ -33,16 +33,34 @@
             android:visibility="visible"/>
 
         <Button
-            android:id="@+id/btn_place_marker"
+            android:id="@+id/btn_place_song"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_style"
-            android:text="Place new Marker"
+            android:text="Place new Song"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="106dp"
+            android:layout_marginEnd="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/ic_edit_location"
+            app:elevation="2dp"
+            android:visibility="invisible"/>
+
+        <Button
+            android:id="@+id/btn_place_playlist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_style"
+            android:text="Place new Playlist"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="180dp"
             android:layout_marginEnd="32dp"
             android:clickable="true"
             android:focusable="true"
@@ -61,25 +79,6 @@
             android:textColor="@color/white"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="180dp"
-            android:layout_marginEnd="32dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:srcCompat="@drawable/ic_edit_location"
-            app:elevation="2dp"
-            android:visibility="invisible"/>
-
-
-        <Button
-            android:id="@+id/btn_update_map"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/btn_style"
-            android:text="Update Map"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
             android:layout_marginBottom="254dp"
             android:layout_marginEnd="32dp"
             android:clickable="true"
@@ -87,6 +86,7 @@
             app:srcCompat="@drawable/ic_edit_location"
             app:elevation="2dp"
             android:visibility="invisible"/>
+
     </RelativeLayout>
 </LinearLayout>
 

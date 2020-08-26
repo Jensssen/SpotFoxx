@@ -28,7 +28,7 @@
         android:id="@+id/btn_dialog_place_marker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Place Marker"
+        android:text="Place Playlist Marker"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/btn_style"
         android:layout_marginTop="5dp"
