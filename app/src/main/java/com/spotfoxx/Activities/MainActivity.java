@@ -27,6 +27,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,6 +72,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.spotfoxx.Adapter.MarkerListAdapter;
 import com.spotfoxx.Adapter.PlaylistAdapter;
+import com.spotfoxx.Adapter.TrackAdapter;
 import com.spotfoxx.BuildConfig;
 import com.spotfoxx.Classes.Constants;
 import com.spotfoxx.Classes.FirebaseControl;
@@ -81,15 +83,18 @@ import com.spotfoxx.Classes.SpotifyWebApi;
 import com.spotfoxx.Classes.User;
 import com.spotfoxx.Interfaces.SpotifyClient;
 import com.spotfoxx.R;
+import com.spotfoxx.SpotifyClasses.CurrentPlaybackInformation;
 import com.spotfoxx.SpotifyClasses.GetPlaylistObj;
 import com.spotfoxx.SpotifyClasses.Item;
 import com.spotfoxx.SpotifyClasses.Offset;
 import com.spotfoxx.SpotifyClasses.PlayRequest;
 import com.spotfoxx.SpotifyClasses.PlaylistInfo;
 import com.spotfoxx.SpotifyClasses.PlaylistItem;
+import com.spotfoxx.SpotifyClasses.Track;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.Image;
 import com.spotify.protocol.types.ImageUri;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,9 +114,10 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private MarkerListAdapter mAdapterEditPlaylists;
 
     // Buttons
-    private Button btn_place_marker;
+
+    private Button btn_place_song;
+    private Button btn_place_playlist;
     private Button btn_edit_marker;
-    private Button btn_update_map;
 
     // Dialog click on marker
     private TextView tv_playlist_title;
@@ -123,15 +129,23 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Dialog dialog;
     private Button btn_dialog_place_marker;
     private Spinner drop_down_playlists;
-    private ImageView img_playlists;
+    private ImageView img;
+    private TextView songTitle;
+    private TextView authorName;
+    private Switch switch_timestamp;
+    // Check if switch is checked
+    Boolean place_timestamp = false;
     private String selected_playlist_id = "null";
+    private String selected_song_id = "null";
     private String selected_playlist_name;
     private int clicked_marker_id;
 
     // RecyclerView Setup
     private List<Playlist_item> playlist_items = new ArrayList<>();
+    private List<Track> track_items = new ArrayList<>();
     private RecyclerView mRecyclerView;
     private PlaylistAdapter mAdapter;
+    private TrackAdapter mTrackAdapter;
     private long mLastClickTime = 0;
 
     // Locaitons and markers
@@ -156,10 +170,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Spotify web api
     private static SpotifyClient client;
 
-    // ARRAYS: These arrays hold all marker related information and are essential to core functionalities
-    private ArrayList<MyLocation> myLocations = new ArrayList<>(); // holds all location objs, inside of the search radius
-    private ArrayList<String> marker_ids = new ArrayList<>(); // holds one id for each visible marker. This id is needed to map one marker to one myLocation obj
-    private ArrayList<Marker> markers = new ArrayList<>(); // holds all placed markers
+
 
     private Toolbar toolbar;
 
@@ -234,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
-        if (id==R.id.link_sharing) {
+        if (id == R.id.link_sharing) {
             Intent sendIntent = new Intent();
             sendIntent.setAction(Intent.ACTION_SEND);
             String shareMessage = getString(R.string.link_sharing_message) + Constants.GOOGLE_PLAY_URL + BuildConfig.APPLICATION_ID;
@@ -242,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             sendIntent.setType("text/plain");
             Intent shareIntent = Intent.createChooser(sendIntent, null);
             startActivity(shareIntent);
-        } else if (id==R.id.sign_out) {
+        } else if (id == R.id.sign_out) {
             FirebaseAuth.getInstance().signOut();
             finishAndRemoveTask();
         }
@@ -254,28 +265,47 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onStart() {
         super.onStart();
         fab_btn = findViewById(R.id.fab);
-        btn_place_marker = findViewById(R.id.btn_place_marker);
+        btn_place_song = findViewById(R.id.btn_place_song);
+        btn_place_playlist = findViewById(R.id.btn_place_playlist);
         btn_edit_marker = findViewById(R.id.btn_edit_markers);
-        btn_update_map = findViewById(R.id.btn_update_map);
 
         fab_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(btn_place_marker.getVisibility() == View.VISIBLE){
+                if (btn_place_playlist.getVisibility() == View.VISIBLE) {
                     makeBtnsInvisible();
-                }else{
+                } else {
                     btn_edit_marker.setVisibility(View.VISIBLE);
-                    btn_place_marker.setVisibility(View.VISIBLE);
-                    btn_update_map.setVisibility(View.VISIBLE);
+                    btn_place_song.setVisibility(View.VISIBLE);
+                    btn_place_playlist.setVisibility(View.VISIBLE);
                 }
             }
 
         });
-        btn_place_marker.setOnClickListener(new View.OnClickListener() {
+        btn_place_song.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (User.isNetworkAvailable(getApplicationContext())) {
-                    if(gpsStatusCheck()){
+                    if (gpsStatusCheck()) {
+                        // Check if user is close to a present marker (Min marker distance has to be fulfilled).
+                        double min_distance = get_closest_marker_distance();
+                        if (min_distance > (MARKER_RADIUS * 2)) {
+                            getCurrentPlayState("episode");
+                        } else {
+                            Toast.makeText(getApplicationContext(), "You are too close to a marker", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    Toast.makeText(getApplicationContext(), R.string.no_internet_toast, Toast.LENGTH_LONG).show();
+                }
+                makeBtnsInvisible();
+            }
+        });
+        btn_place_playlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (User.isNetworkAvailable(getApplicationContext())) {
+                    if (gpsStatusCheck()) {
                         // Check if user is close to a present marker (Min marker distance has to be fulfilled).
                         double min_distance = get_closest_marker_distance();
                         if (min_distance > (MARKER_RADIUS * 2)) {
@@ -290,7 +320,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 makeBtnsInvisible();
             }
         });
-
         btn_edit_marker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -302,34 +331,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 makeBtnsInvisible();
             }
         });
-
-        btn_update_map.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (User.isNetworkAvailable(getApplicationContext())) {
-                    // ################## Prevent rapid button clicking ######################
-                    // double-clicking prevention of radio button, using threshold of x ms
-                    if (SystemClock.elapsedRealtime() - mLastClickTime < Constants.MAP_UPDATE_DELAY) {
-                        Toast.makeText(getApplicationContext(), "Please wait ...", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    mLastClickTime = SystemClock.elapsedRealtime();
-                    setDeviceLocation();
-                    Toast.makeText(getApplicationContext(), "Update Successful", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getApplicationContext(), R.string.no_internet_toast, Toast.LENGTH_LONG).show();
-                }
-
-                makeBtnsInvisible();
-            }
-        });
     }
+
     @Override
     public boolean onMarkerClick(Marker marker) {
         // Get myLocation object, depending on clicked marker tag
         String marker_key = (String) marker.getTag();
-        clicked_marker_id = marker_ids.indexOf(marker_key);
-        MyLocation myLocation = myLocations.get(clicked_marker_id);
+        clicked_marker_id = User.getMarker_ids().indexOf(marker_key);
+        MyLocation myLocation = User.getMyLocations().get(clicked_marker_id);
 
         // Get Playlist uri and perform web api call
         String playlist_uri = myLocation.getSpotify_uri();
@@ -341,8 +350,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         float distance = current_device_location.distanceTo(tmp_location);
 
         if (distance < MARKER_RADIUS) {
-            requestPlaylistInfo(getApplicationContext(), playlist_uri);
-            showMarkerDialog(marker);
+            if(myLocation.getType().equals("p")){
+                requestPlaylistInfo(getApplicationContext(), playlist_uri);
+                showMarkerDialog(marker);
+            } else {
+
+                showSongInRecyclerview(myLocation);
+                showMarkerDialog(marker);
+            }
         } else {
             Toast.makeText(getApplicationContext(), "You need to be close to the marker.", Toast.LENGTH_SHORT).show();
         }
@@ -413,20 +428,20 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             mGoogleMap.clear();
         }
         // Clear the myLocations array
-        myLocations.clear();
+        User.clearMyLocations();
         // Clear the markers array
-        markers.clear();
+        User.clearMarkers();
         // Clear the marker ids
-        marker_ids.clear();
+        User.clearMarkerIds();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference locationRef = database.getReference().child(Constants.location_prefix);
 
         GeoFire geoFire = new GeoFire(locationRef);
-        if(current_device_location != null){
+        if (current_device_location != null) {
             geoLocation = new GeoLocation(current_device_location.getLatitude(), current_device_location.getLongitude());
         } else {
-            geoLocation = new GeoLocation(0,0);
+            geoLocation = new GeoLocation(0, 0);
         }
         GeoQuery geoQuery = geoFire.queryAtLocation(geoLocation, GEOFIRE_SEARCH_RADIUS);
 
@@ -435,13 +450,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onDataEntered(DataSnapshot dataSnapshot, GeoLocation location) {
                 MyLocation myLocation = dataSnapshot.getValue(MyLocation.class);
 
+
+
                 myLocation.setLike_rate(getLikeRate(myLocation));
 
+                User.addMarkerIdToMarkerIds(dataSnapshot.getKey());
+                User.addLocationToMyLocations(myLocation);
                 addMapMarkers(myLocation, dataSnapshot.getKey());
-                marker_ids.add(dataSnapshot.getKey());
-                myLocations.add(myLocation);
 
-                drawCircle(new LatLng(location.latitude, location.longitude), MARKER_RADIUS, Color.RED, MARKER_LIKE_INDICATION.get(8));
+                CircleOptions circleoption = new CircleOptions().center(new LatLng(myLocation.getL().get(0), myLocation.getL().get(1))).radius(MARKER_RADIUS).fillColor(MARKER_LIKE_INDICATION.get(8));
+                Circle circle = mGoogleMap.addCircle(circleoption);
+                User.addCircleToCircles(circle);
+                //drawCircle(new LatLng(location.latitude, location.longitude), MARKER_RADIUS, Color.RED, MARKER_LIKE_INDICATION.get(8));
             }
 
             @Override
@@ -456,25 +476,24 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             @Override
             public void onDataChanged(DataSnapshot dataSnapshot, GeoLocation location) {
-                Log.d("Aaa", "aa");
                 String key = dataSnapshot.getKey();
-                int list_idx = marker_ids.indexOf(key);
+                int list_idx = User.getMarker_ids().indexOf(key);
                 MyLocation myLocation = dataSnapshot.getValue(MyLocation.class);
 
                 myLocation.setLike_rate(getLikeRate(myLocation));
+                updateMarkerIcon(myLocation, list_idx);
 
                 // update like, dislike textview in dialog
                 int like = 0;
                 int dislike = 0;
-                if (myLocation.getDislike() != null){
+                if (myLocation.getDislike() != null) {
                     dislike = myLocation.getDislike().size();
                 }
-                if (myLocation.getLike() != null){
+                if (myLocation.getLike() != null) {
                     like = myLocation.getLike().size();
                 }
                 updateLikeDislikeDialog(like, dislike);
-
-                myLocations.set(list_idx, myLocation);
+                User.updateMyLocationByIndex(list_idx, myLocation);
             }
 
             @Override
@@ -494,17 +513,39 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void addMapMarkers(MyLocation myLocation, String key) {
         if (mGoogleMap != null) {
-
-            marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_marker);
+            if(myLocation.getType() != null){
+                if(myLocation.getType().equals("p")){
+                    marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_marker);
+                } else if (myLocation.getType().equals("s")) {
+                    marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_location_on_green);
+                }
+            } else {
+                marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_marker);
+            }
 
             LatLng latLng = new LatLng(myLocation.getL().get(0), myLocation.getL().get(1));
 
             Marker placed_marker = mGoogleMap.addMarker(new MarkerOptions().position(latLng).title(myLocation.getName()).snippet(getLikeDislikeRate(myLocation)).icon(marker_icon));
             placed_marker.setTag(key);
-            markers.add(placed_marker);
+            User.addMarkerToMarkers(placed_marker);
 
             // Set a listener for marker click.
             mGoogleMap.setOnMarkerClickListener(this);
+        }
+    }
+
+    private void updateMarkerIcon(MyLocation myLocation, int marker_index){
+        if (mGoogleMap != null) {
+            if(myLocation.getType() != null){
+                if(myLocation.getType().equals("p")){
+                    marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_marker);
+                } else if (myLocation.getType().equals("s")) {
+                    marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_location_on_green);
+                }
+            } else {
+                marker_icon = generateBitmapDescriptorFromRes(getApplicationContext(), R.drawable.ic_marker);
+            }
+            User.getMarkers().get(marker_index).setIcon(marker_icon);
         }
     }
 
@@ -540,14 +581,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onResponse(Call<GetPlaylistObj> call, Response<GetPlaylistObj> response) {
                 GetPlaylistObj playlistObj = response.body();
                 ArrayList<String> playlist_names = new ArrayList<>();
-                if(playlistObj != null){
+                if (playlistObj != null) {
                     List<Item> playlists = playlistObj.getItems();
                     if (playlistObj != null) {
                         for (Item item : playlists) {
                             playlist_names.add(item.getName());
                         }
                     }
-                    showPlaceMarkerDialog(playlists, playlist_names);
+                    showPlacePlaylistDialog(playlists, playlist_names);
                 }
             }
 
@@ -558,7 +599,35 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
     }
 
-    private void showEditPlaylistDialog(){
+    public void getCurrentPlayState(String additional_type) {
+        // Performs a web api call, that returns the current playback state.
+
+        String mAccessToken = SpotifyControl.getSpotifyAccessToken();
+
+        Call call = client.getInformationAboutUsersCurrentPlayback(additional_type, "Bearer " + mAccessToken);
+        call.enqueue(new Callback<CurrentPlaybackInformation>() {
+            @Override
+            public void onResponse(Call<CurrentPlaybackInformation> call, Response<CurrentPlaybackInformation> response) {
+                CurrentPlaybackInformation currentPlaybackInformation = response.body();
+                if (currentPlaybackInformation == null) {
+                    Toast.makeText(getApplicationContext(), "Please play a song in Spotify", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (currentPlaybackInformation.getCurrentlyPlayingType().equals("episode")) {
+                        Toast.makeText(getApplicationContext(), "You can not upload a Podcast", Toast.LENGTH_SHORT).show();
+                    } else {
+                        showPlaceSongDialog(currentPlaybackInformation);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call call, Throwable throwable) {
+                Toast.makeText(getApplicationContext(), throwable.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showEditPlaylistDialog() {
         dialog.setContentView(R.layout.marker_edit_layout);
         mRecyclerView = (RecyclerView) dialog.findViewById(R.id.rv_user_placed_marker);
 
@@ -574,7 +643,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 // create an array list of user added locations
                 user_added_locations = new ArrayList<>();
-                for (DataSnapshot user_location : snapshot.getChildren()){
+                for (DataSnapshot user_location : snapshot.getChildren()) {
                     MyLocation location = user_location.getValue(MyLocation.class);
                     location.setKey(user_location.getKey());
                     user_added_locations.add(location);
@@ -600,7 +669,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                             // open Spotify playlist on Click
                             Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setData(Uri.parse("spotify:playlist:"+ myLocation.getSpotify_uri()));
+                            intent.setData(Uri.parse("spotify:playlist:" + myLocation.getSpotify_uri()));
                             intent.putExtra(Intent.EXTRA_REFERRER,
                                     Uri.parse("android-app://" + getApplicationContext().getPackageName()));
                             startActivity(intent);
@@ -629,11 +698,97 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void showPlaceMarkerDialog(List<Item> playlist_objs, ArrayList<String> playlist_names) {
+    private void showPlaceSongDialog(CurrentPlaybackInformation currentPlaybackInformation) {
+        dialog.setContentView(R.layout.place_song_marker_dialog);
+        img = (ImageView) dialog.findViewById(R.id.song_img);
+        songTitle = (TextView) dialog.findViewById(R.id.tv_song_title);
+        authorName = (TextView) dialog.findViewById(R.id.tv_song_author);
+        switch_timestamp = (Switch) dialog.findViewById(R.id.switch_timestamp);
+        btn_dialog_place_marker = (Button) dialog.findViewById(R.id.btn_dialog_place_marker);
+
+        // Get selected Spotify track id
+        selected_song_id = currentPlaybackInformation.getItem().getId();
+
+                // Update Title and author names
+        songTitle.setText(currentPlaybackInformation.getItem().getName());
+        authorName.setText(currentPlaybackInformation.getItem().getAlbum().getArtists().get(0).getName());
+
+
+        place_timestamp = false;
+        switch_timestamp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(switch_timestamp.isChecked()){
+                    place_timestamp = true;
+                } else {
+                    place_timestamp = false;
+                }
+            }
+        });
+
+        // Show Song Image
+        if (currentPlaybackInformation.getItem().getAlbum().getImages().size() > 0) {
+            com.spotfoxx.SpotifyClasses.Image image = currentPlaybackInformation.getItem().getAlbum().getImages().get(0);
+            SpotifyAppRemote spotifyAppRemote = SpotifyControl.getmSpotifyAppRemote(getApplicationContext());
+
+            ImageUri imageUri = new ImageUri(image.getUrl());
+            spotifyAppRemote
+                    .getImagesApi()
+                    .getImage(imageUri, Image.Dimension.THUMBNAIL)
+                    .setResultCallback(
+                            bitmap -> {
+                                img.setImageBitmap(bitmap);
+                            });
+        } else {
+            img.setImageResource(R.drawable.ic_launcher_background);
+        }
+
+        btn_dialog_place_marker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                // Check if song has already been placed
+                if (!User.getAlreadyPlacedSpotifyPlaylistUris().contains(selected_song_id)) {
+                    if(place_timestamp){
+                        Boolean marker_upload_successfull = FirebaseControl.add_marker_to_firebase(
+                                getApplicationContext(),
+                                "Track: " + currentPlaybackInformation.getItem().getName(),
+                                selected_song_id,
+                                current_device_location.getLatitude(),
+                                current_device_location.getLongitude(),
+                                "s",
+                                currentPlaybackInformation.getProgressMs());
+                    }else{
+                        Boolean marker_upload_successfull = FirebaseControl.add_marker_to_firebase(
+                                getApplicationContext(),
+                                "Track: " + currentPlaybackInformation.getItem().getName(),
+                                selected_song_id,
+                                current_device_location.getLatitude(),
+                                current_device_location.getLongitude(),
+                                "s",
+                                0);
+                    }
+
+                    // Add uri to list of uris of the current app session (On app start it is automatically updated)
+                    User.addUriToAlreadyPlacedSpotifyPlaylistUris(selected_song_id);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Selected Song has already been placed.", Toast.LENGTH_SHORT).show();
+                }
+                dialog.dismiss();
+            }
+
+
+        });
+
+
+        dialog.show();
+    }
+
+    private void showPlacePlaylistDialog(List<Item> playlist_objs, ArrayList<String> playlist_names) {
         dialog.setContentView(R.layout.place_marker_dialog);
         btn_dialog_place_marker = (Button) dialog.findViewById(R.id.btn_dialog_place_marker);
         drop_down_playlists = (Spinner) dialog.findViewById(R.id.drop_down_playlists);
-        img_playlists = (ImageView) dialog.findViewById(R.id.playlist_img);
+        img = (ImageView) dialog.findViewById(R.id.playlist_img);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, playlist_names);
 
@@ -656,11 +811,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                             .getImage(imageUri, Image.Dimension.THUMBNAIL)
                             .setResultCallback(
                                     bitmap -> {
-                                        img_playlists.setImageBitmap(bitmap);
+                                        img.setImageBitmap(bitmap);
 
                                     });
                 } else {
-                    img_playlists.setImageResource(R.drawable.ic_launcher_background);
+                    img.setImageResource(R.drawable.ic_launcher_background);
                 }
             }
 
@@ -675,17 +830,19 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (playlist_objs != null) {
 
                     // Check if playlist has already been placed
-                    if(!User.getAlreadyPlacedSpotifyPlaylistUris().contains(selected_playlist_id)){
+                    if (!User.getAlreadyPlacedSpotifyPlaylistUris().contains(selected_playlist_id)) {
                         Boolean marker_upload_successfull = FirebaseControl.add_marker_to_firebase(
                                 getApplicationContext(),
                                 selected_playlist_name,
                                 selected_playlist_id,
                                 current_device_location.getLatitude(),
-                                current_device_location.getLongitude());
+                                current_device_location.getLongitude(),
+                                "p",
+                                0);
 
                         // Add uri to list of uris of the current app session (On app start it is automatically updated)
                         User.addUriToAlreadyPlacedSpotifyPlaylistUris(selected_playlist_id);
-                    }else{
+                    } else {
                         Toast.makeText(getApplicationContext(), "Selected Playlist has already been placed.", Toast.LENGTH_SHORT).show();
                     }
 
@@ -696,6 +853,63 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
         dialog.show();
+    }
+
+    private void showSongInRecyclerview(MyLocation location){
+
+        // This method adds a list of spotify songs to an already existing playlist
+        String mAccessToken = SpotifyControl.getSpotifyAccessToken();
+        LinearLayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+
+        Call call = client.getOneTrack(location.getSpotify_uri(), "Bearer " + mAccessToken);
+            call.enqueue(new Callback<com.spotfoxx.SpotifyClasses.Track>() {
+                @Override
+                public void onResponse(Call<com.spotfoxx.SpotifyClasses.Track> call, Response<com.spotfoxx.SpotifyClasses.Track> response) {
+                    if(response.body() != null){
+                        com.spotfoxx.SpotifyClasses.Track track = response.body();
+
+                        tv_playlist_title.setText("Track Placed By: " + location.getUser_name());
+
+                        // Create a list of Track objects that could either be a track or an episode.
+                        track_items.clear();
+                        track_items.add(track);
+
+                        // expand Recycler List view
+                        mRecyclerView.setHasFixedSize(true);
+                        mTrackAdapter = new TrackAdapter(track_items);
+                        mRecyclerView.setLayoutManager(mLayoutManager);
+                        mRecyclerView.setAdapter(mTrackAdapter);
+
+                        mTrackAdapter.setOnItemClickListener(new TrackAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(int position) {
+                                // ################## Prevent rapid button clicking ######################
+                                // double-clicking prevention of radio button, using threshold of x ms
+                                if (SystemClock.elapsedRealtime() - mLastClickTime < Constants.GENERAL_BTN_PRESS_DELAY) {
+                                    return;
+                                }
+                                mLastClickTime = SystemClock.elapsedRealtime();
+                                SpotifyAppRemote spotifyAppRemote = SpotifyControl.getmSpotifyAppRemote(getApplicationContext());
+                                spotifyAppRemote.getPlayerApi().play("spotify:track:" + location.getSpotify_uri());
+                                SystemClock.sleep(500);
+                                spotifyAppRemote.getPlayerApi().seekTo(location.getT());
+                            }
+                        });
+
+                    }
+
+
+
+
+                }
+
+                @Override
+                public void onFailure(Call call, Throwable t) {
+                    // todo: handle
+                }
+            });
+
+
     }
 
     private void showMarkerDialog(Marker marker) {
@@ -715,7 +929,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseControl.like_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
+                FirebaseControl.like_marker(getApplicationContext(), User.getMarker_ids().get(clicked_marker_id), User.getSpotify_user_name());
 
             }
         });
@@ -723,7 +937,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         btn_dislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseControl.dislike_marker(getApplicationContext(), marker_ids.get(clicked_marker_id), User.getSpotify_user_name());
+                FirebaseControl.dislike_marker(getApplicationContext(), User.getMarker_ids().get(clicked_marker_id), User.getSpotify_user_name());
             }
         });
 
@@ -757,6 +971,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     PlaylistInfo playlistInfo = response.body();
                     tv_playlist_title.setText(playlistInfo.getOwner().getDisplayName() + " - " + playlistInfo.getName());
                     List<String> radio_playlist_array = new ArrayList<>();
+
                     // Create a list of Track objects that could either be a track or an episode.
                     playlist_items.clear();
                     for (PlaylistItem item : playlistInfo.getTracks().getItems()) {
@@ -833,8 +1048,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
             return false;
-        }
-        else{
+        } else {
             return true;
         }
     }
@@ -854,14 +1068,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void makeBtnsInvisible() {
         btn_edit_marker.setVisibility(View.INVISIBLE);
-        btn_place_marker.setVisibility(View.INVISIBLE);
-        btn_update_map.setVisibility(View.INVISIBLE);
+        btn_place_playlist.setVisibility(View.INVISIBLE);
+        btn_place_song.setVisibility(View.INVISIBLE);
     }
 
-    private void updateLikeDislikeDialog(int like, int dislike){
+    private void updateLikeDislikeDialog(int like, int dislike) {
 
         tv_like_dislike = (TextView) dialog.findViewById(R.id.tv_like_dislike);
-        if(tv_like_dislike != null) {
+        if (tv_like_dislike != null) {
             tv_like_dislike.setText(String.format("Likes: %d | Dislikes: %d", like, dislike));
         }
     }
@@ -894,7 +1108,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private double get_closest_marker_distance() {
         // distance is returned in meters
         Float min_distance = 1000000.0F;
-        for (MyLocation location : myLocations) {
+        for (MyLocation location : User.getMyLocations()) {
             Location tmp_location = new Location("");
             tmp_location.setLatitude(location.getL().get(0));
             tmp_location.setLongitude(location.getL().get(1));
@@ -924,7 +1138,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    private void initListOfUserPlacedLocations(){
+    private void initListOfUserPlacedLocations() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference locationRef = database.getReference().child(Constants.location_prefix);
         ArrayList<String> alreadyPlacedSpotifyPlaylistUris = new ArrayList<>();
@@ -935,7 +1149,7 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 // create an array list of user added locations
                 user_added_locations = new ArrayList<>();
-                for (DataSnapshot user_location : snapshot.getChildren()){
+                for (DataSnapshot user_location : snapshot.getChildren()) {
                     MyLocation location = user_location.getValue(MyLocation.class);
 
                     alreadyPlacedSpotifyPlaylistUris.add(location.getSpotify_uri());

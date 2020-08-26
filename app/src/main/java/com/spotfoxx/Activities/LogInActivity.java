@@ -55,7 +55,8 @@ public class LogInActivity extends AppCompatActivity {
                     User.setUuid(db_user.getUid());
                 } else {
                     // Perform a fresh firebase login.
-                    providers = Arrays.asList(new AuthUI.IdpConfig.GoogleBuilder().build());
+                    providers = Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build(),
+                            new AuthUI.IdpConfig.GoogleBuilder().build());
                     showSignInOptions();
                 }
 
