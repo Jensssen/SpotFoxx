@@ -48,7 +48,7 @@ public class FirebaseControl {
         Toast.makeText(context, "Marker has been disliked", Toast.LENGTH_SHORT).show();
     }
 
-    public static boolean add_marker_to_firebase(Context context, String name, String spotify_uri, double latitude, double longitude) {
+    public static boolean add_marker_to_firebase(Context context, String name, String spotify_uri, double latitude, double longitude, String type, long timestamp) {
 
         // Upload new location
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -62,6 +62,8 @@ public class FirebaseControl {
         new_location_values.put("name", name);
         new_location_values.put("spotify_uri", spotify_uri);
         new_location_values.put("user_name", User.getSpotify_user_name());
+        new_location_values.put("type", type);
+        new_location_values.put("t", timestamp);
         locationRef.updateChildren(new_location_values);
 
 
