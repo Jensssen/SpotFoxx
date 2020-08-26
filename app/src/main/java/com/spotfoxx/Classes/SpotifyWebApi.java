@@ -5,29 +5,12 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-
 import com.spotfoxx.Interfaces.SpotifyClient;
 import com.spotfoxx.R;
-import com.spotfoxx.SpotifyClasses.AlbumInfo;
-import com.spotfoxx.SpotifyClasses.CurrentPlaybackInformation;
 import com.spotfoxx.SpotifyClasses.Device;
 import com.spotfoxx.SpotifyClasses.Devices;
-import com.spotfoxx.SpotifyClasses.GetPlaylistObj;
-import com.spotfoxx.SpotifyClasses.Item;
-import com.spotfoxx.SpotifyClasses.Item__;
 import com.spotfoxx.SpotifyClasses.PlayRequest;
-import com.spotfoxx.SpotifyClasses.Playlist;
-import com.spotfoxx.SpotifyClasses.PlaylistInfo;
-import com.spotfoxx.SpotifyClasses.PlaylistItem;
 import com.spotfoxx.SpotifyClasses.UserObj;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.spotify.android.appremote.api.SpotifyAppRemote;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;

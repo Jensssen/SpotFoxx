@@ -12,15 +12,19 @@ public class MyLocation {
     private Map<String, Object> dislike;
     private int like_rate;
     private String key;
+    private String type;
+    private long t;
 
 
-    public MyLocation(String name, String spotify_uri, String user_name, List<Double> l, Map<String, Object> like, Map<String, Object> dislike) {
+    public MyLocation(String name, String spotify_uri, String user_name, List<Double> l, Map<String, Object> like, Map<String, Object> dislike, String type, long t) {
         this.name = name;
         this.spotify_uri = spotify_uri;
         this.l = l;
         this.user_name = user_name;
         this.like = like;
         this.dislike = dislike;
+        this.type = type;
+        this.t = t;
     }
 
     public MyLocation() {
@@ -83,5 +87,21 @@ public class MyLocation {
     }
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public long getT() {
+        return t;
+    }
+
+    public void setT(long t) {
+        this.t = t;
     }
 }
