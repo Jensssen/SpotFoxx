@@ -1,5 +1,6 @@
 package com.spotfoxx.Adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +11,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.spotfoxx.Classes.FirebaseControl;
 import com.spotfoxx.Classes.MyLocation;
 import com.spotfoxx.Classes.User;
 import com.spotfoxx.R;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -101,7 +107,49 @@ public class MarkerListAdapter extends RecyclerView.Adapter<MarkerListAdapter.My
             public void onClick(View view) {
                 if (location_item.getKey() != null){
                     removeItem(position, location_item.getKey());
+                    // Remove spotify uri from list of already placed playlists
                     User.removeUriFromAlreadyPlacedspotifyPlaylistUris(location_item.getSpotify_uri());
+
+                    // First get the latlong of the removed location
+                    ArrayList<MyLocation> myLocationArrayList = User.getMyLocations();
+                    int index = 0;
+                    LatLng latLng = new LatLng(0,0);
+                    for (MyLocation location: myLocationArrayList){
+                        if (location.getSpotify_uri().equals(location_item.getSpotify_uri())) {
+                            latLng = new LatLng(location.getL().get(0), location.getL().get(1));
+                            break;
+                        }
+                        index +=1;
+                    }
+                    // Remove myLocation from those lists
+                    User.removeLocationFromMyLocations(location_item.getUser_name(), location_item.getSpotify_uri());
+                    User.removeMarkerIdFromMarkerIds(index);
+
+
+                    // Remove marker that matches latlong
+                    ArrayList<Circle> circlesList = User.getCircles();
+                    index = 0;
+                    for (Circle circle: circlesList){
+                        if(circle.getCenter().latitude == latLng.latitude & circle.getCenter().longitude == latLng.longitude){
+                            break;
+                        }
+                        index += 1;
+                    }
+                    User.getCircles().get(index).remove();
+                    User.removeCircleFromCircles(index);
+
+                    // Remove circle that matches latlong
+                    ArrayList<Marker> markerArrayList = User.getMarkers();
+                    index = 0;
+                    for (Marker marker: markerArrayList){
+                        if(marker.getPosition().latitude == latLng.latitude & marker.getPosition().longitude == latLng.longitude){
+                            break;
+                        }
+                        index += 1;
+                    }
+                    User.getMarkers().get(index).remove();
+                    User.removeMarkerFromMarkers(index);
+
                 }
             }
         });
