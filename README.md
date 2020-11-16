@@ -1,5 +1,7 @@
 # SpotFoxx
 An Android App that allows the user to link Spotify Musik Songs and Playlists with real world Locations. 
+The app can be found in the [Google Play Store(https://play.google.com/store/apps/details?id=com.spotfoxx&gl=DE)
+
 
 # General Idea and Motivation behind the Project
 The motivation to work on this app originates from my wish to learn and better understand, how to develop apps. A additional requirement was to better understand the use of APIs (client side only). 
